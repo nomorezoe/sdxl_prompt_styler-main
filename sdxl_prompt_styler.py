@@ -50,6 +50,7 @@ def load_styles_from_directory(directory):
     seen = set()
 
     for json_file in json_files:
+        print("file link"+ json_file)
         json_data = read_json_file(json_file)
         if json_data:
             for item in json_data:
@@ -232,6 +233,7 @@ class SDXLPromptStyler:
     CATEGORY = 'utils'
 
     def prompt_styler(self, text_positive, text_negative, style, log_prompt, style_positive, style_negative):
+        print("here")
         # Process and combine prompts in templates
         # The function replaces the positive prompt placeholder in the template,
         # and combines the negative prompt with the template's negative prompt, if they exist.
