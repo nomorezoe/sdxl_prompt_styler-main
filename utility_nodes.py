@@ -1061,7 +1061,7 @@ class UtilModelMerge:
         return (m,)
 
 
-NODE_CLASS_MAPPINGS = {
+NODE_CLASS_MAPPINGS_2 = {
     "LoadImageFromUrl": UtilLoadImageFromUrl,
     "LoadImageAsMaskFromUrl": UtilLoadImageAsMaskFromUrl,
     "StringToInt": UtilStringToInt,
@@ -1093,7 +1093,7 @@ NODE_CLASS_MAPPINGS = {
     "NumberScaler": UtilNumberScaler,
     "MergeModels": UtilModelMerge,
 }
-NODE_DISPLAY_NAME_MAPPINGS = {
+NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "LoadImageFromUrl": "Load Image From URL",
     "LoadImageAsMaskFromUrl": "Load Image (as Mask) From URL",
     "StringToInt": "String to Int",
