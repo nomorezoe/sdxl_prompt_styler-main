@@ -16,6 +16,7 @@ import collections.abc as clabc
 from PIL.PngImagePlugin import PngInfo
 from PIL import Image
 import numpy as np
+import sys
 
 import os
 import json
@@ -301,6 +302,67 @@ class LatentSelector:
         print(f"LatentSelector: selected no latents, passthrough")
         return (latent_image, )
 
+class SEGSOrderedFilter_Plus:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                        "segs": ("SEGS", ),
+                        "target": (["area(=w*h)", "width", "height", "x1", "y1", "x2", "y2"],),
+                        "order": ("BOOLEAN", {"default": True, "label_on": "descending", "label_off": "ascending"}),
+                        "take_start": ("INT", {"default": 0, "min": 0, "max": sys.maxsize, "step": 1}),
+                        "take_count": ("INT", {"default": 1, "min": 0, "max": sys.maxsize, "step": 1}),
+                     },
+                }
+
+    RETURN_TYPES = ("SEGS", "SEGS",)
+    RETURN_NAMES = ("filtered_SEGS", "remained_SEGS",)
+    FUNCTION = "doit"
+
+    CATEGORY = "ImpactPack/Util"
+
+    def doit(self, segs, target, order, take_start, take_count):
+        segs_with_order = []
+
+        for seg in segs[1]:
+            x1 = seg.crop_region[0]
+            y1 = seg.crop_region[1]
+            x2 = seg.crop_region[2]
+            y2 = seg.crop_region[3]
+
+            if target == "area(=w*h)":
+                value = (y2 - y1) * (x2 - x1)
+            elif target == "width":
+                value = x2 - x1
+            elif target == "height":
+                value = y2 - y1
+            elif target == "x1":
+                value = x1
+            elif target == "x2":
+                value = x2
+            elif target == "y1":
+                value = y1
+            else:
+                value = y2
+
+            segs_with_order.append((value, seg))
+
+        if order:
+            sorted_list = sorted(segs_with_order, key=lambda x: x[0], reverse=True)
+        else:
+            sorted_list = sorted(segs_with_order, key=lambda x: x[0], reverse=False)
+
+        result_list = []
+        remained_list = []
+
+        for i, item in enumerate(sorted_list):
+            if take_start <= i < take_start + take_count:
+                result_list.append(item[1])
+            else:
+                remained_list.append(item[1])
+
+        print("result_list: "+ str(len(result_list)) +":"+ str(take_start) + ":"+ str(take_count))
+        return ((segs[0], result_list), (segs[0], remained_list), )
+
 
 class LatentDuplicator:
     """
@@ -372,4 +434,5 @@ NODE_CLASS_MAPPINGS_4 = {
     "LatentSelector": LatentSelector,
     "LatentDuplicator": LatentDuplicator,
     "SaveImage_plus": SaveImage_plus,
+    "SEGSOrderedFilter_Plus":SEGSOrderedFilter_Plus
 }
