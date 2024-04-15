@@ -49,7 +49,9 @@ class SaveImage_plus:
         filename_prefix += self.prefix_append
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()
+        print("save_images"  + str(len(images)))
         for (batch_number, image) in enumerate(images):
+            print("batch:"+ str(batch_number))
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             metadata = None
