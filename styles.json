@@ -612,5 +612,10 @@
         "name": "comic-character",
         "prompt": "comic character {prompt} . dynamic, bold lines, vibrant colors, stylized, expressive",
         "negative_prompt": "realistic, monochrome, digital, abstract"
+    },
+    {
+        "name": "vector-graphic",
+        "prompt": "vector graphic {prompt} . clean lines, scalable, digital, flat colors, modern",
+        "negative_prompt": "textured, hand-drawn, blurry, realistic"
     }
 ]
