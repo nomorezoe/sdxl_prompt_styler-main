@@ -12,7 +12,7 @@ reactor_dir = os.path.abspath(os.path.join(my_dir, '..', 'comfyui-reactor-node')
 sys.path.append(reactor_dir)
 
 from reactor_utils import tensor_to_pil
-from scripts.reactor_faceswap import analyze_faces
+#from scripts.reactor_faceswap import analyze_faces
 
 class ReActorUpdateCountFace:
     @classmethod
@@ -30,8 +30,8 @@ class ReActorUpdateCountFace:
         image = tensor_to_pil(image)
         image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         det_size=(640, 640)
-        faces = analyze_faces(image, det_size)
-        return (len(faces), )
+        #faces = analyze_faces(image, det_size)
+        return 4
      
 NODE_CLASS_MAPPINGS_5 = {
     "ReActorUpdateCountFace": ReActorUpdateCountFace
