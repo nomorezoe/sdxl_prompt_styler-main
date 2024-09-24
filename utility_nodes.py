@@ -1134,6 +1134,35 @@ class LoadImage_EX:
             return "Invalid image file: {}".format(image)
 
         return True
+    
+class GetImagesFromBatchIndexed_zoe:
+    
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "indexedimagesfrombatch"
+    CATEGORY = "KJNodes/image"
+    DESCRIPTION = """Selects and returns the images at the specified indices as an image batch."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                 "images": ("IMAGE",),
+                 "indexes": ("STRING", {"default": "0", "multiline": True}),
+        },
+    } 
+    
+    def indexedimagesfrombatch(self, images, indexes):
+        
+        # Parse the indexes string into a list of integers
+        index_list = [int(index.strip()) for index in indexes.split(',')]
+        
+        # Convert list of indices to a PyTorch tensor
+        indices_tensor = torch.tensor(index_list, dtype=torch.long)
+        
+        # Select the images at the specified indices
+        chosen_images = images[indices_tensor]
+        
+        return (chosen_images,)
 
 
 
@@ -1169,6 +1198,7 @@ NODE_CLASS_MAPPINGS_2 = {
     "RandomFloat": UtilRandomFloat,
     "NumberScaler": UtilNumberScaler,
     "MergeModels": UtilModelMerge,
+    "GetImagesFromBatchIndexed_zoe":GetImagesFromBatchIndexed_zoe
 }
 NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "LoadImageFromUrl": "Load Image From URL",
@@ -1202,4 +1232,5 @@ NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "RandomFloat": "Random Float",
     "NumberScaler": "Number Scaler",
     "MergeModels": "Merge Models",
+    "GetImagesFromBatchIndexed_zoe":"GetImagesFromBatchIndexed (zoe)",
 }
