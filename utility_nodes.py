@@ -6,7 +6,7 @@ import base64
 import random
 import requests
 from typing import List, Dict, Tuple
-
+from typing import Any, Mapping
 from PIL import Image, ImageOps, ImageFilter, ImageSequence
 import numpy as np
 
@@ -21,6 +21,15 @@ import node_helpers
 
 MAX_RESOLUTION = 8192
 
+FLUX_SUPPORTED_RESOLUTIONS = [
+    (1024, 1024, 1.0),
+    (1216, 832, 1.5),
+    (1152, 896, 1.333333333),
+    (1344, 768, 1.777777777),
+    (832, 1216, 0.666666666),
+    (896, 1152, 0.75),
+    (768, 1344, 0.4286),
+]
 
 def prepare_image_for_preview(image: Image.Image, output_dir: str, prefix=None):
     if prefix is None:
@@ -1164,7 +1173,40 @@ class GetImagesFromBatchIndexed_zoe:
         
         return (chosen_images,)
 
+class NearestZoe_FluxResolution:
+    @classmethod
+    def INPUT_TYPES(cls) -> Mapping[str, Any]:
+        return {"required": {"image": ("IMAGE",)}}
 
+    RETURN_TYPES = ("INT", "INT")
+    RETURN_NAMES = ("width", "height")
+    FUNCTION = "op"
+    CATEGORY = "math/graphics"
+
+    def op(self, image) -> tuple[int, int]:
+        image_width = image.size()[2]
+        image_height = image.size()[1]
+        print(f"Input image resolution: {image_width}x{image_height}")
+        image_ratio = image_width / image_height
+        differences = [
+            (abs(image_ratio - resolution[2]), resolution)
+            for resolution in FLUX_SUPPORTED_RESOLUTIONS
+        ]
+        smallest = None
+        for difference in differences:
+            if smallest is None:
+                smallest = difference
+            else:
+                if difference[0] < smallest[0]:
+                    smallest = difference
+        if smallest is not None:
+            width = smallest[1][0]
+            height = smallest[1][1]
+        else:
+            width = 1024
+            height = 1024
+        print(f"Selected SDXL resolution: {width}x{height}")
+        return (width, height)
 
 NODE_CLASS_MAPPINGS_2 = {
     "LoadImageFromUrl": UtilLoadImageFromUrl,
@@ -1198,7 +1240,8 @@ NODE_CLASS_MAPPINGS_2 = {
     "RandomFloat": UtilRandomFloat,
     "NumberScaler": UtilNumberScaler,
     "MergeModels": UtilModelMerge,
-    "GetImagesFromBatchIndexed_zoe":GetImagesFromBatchIndexed_zoe
+    "GetImagesFromBatchIndexed_zoe":GetImagesFromBatchIndexed_zoe,
+    "NearestFluxResolution_zoe":NearestZoe_FluxResolution
 }
 NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "LoadImageFromUrl": "Load Image From URL",
@@ -1233,4 +1276,5 @@ NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "NumberScaler": "Number Scaler",
     "MergeModels": "Merge Models",
     "GetImagesFromBatchIndexed_zoe":"GetImagesFromBatchIndexed (zoe)",
+    "NearestZoe_FluxResolution": "NearestFluxResolution (zoe)",
 }
