@@ -1173,7 +1173,7 @@ class GetImagesFromBatchIndexed_zoe:
         
         return (chosen_images,)
 
-class NearestZoe_FluxResolution:
+class NearestFluxResolution_zoe:
     @classmethod
     def INPUT_TYPES(cls) -> Mapping[str, Any]:
         return {"required": {"image": ("IMAGE",)}}
@@ -1241,7 +1241,7 @@ NODE_CLASS_MAPPINGS_2 = {
     "NumberScaler": UtilNumberScaler,
     "MergeModels": UtilModelMerge,
     "GetImagesFromBatchIndexed_zoe":GetImagesFromBatchIndexed_zoe,
-    "NearestFluxResolution_zoe":NearestZoe_FluxResolution
+    "NearestFluxResolution_zoe":NearestFluxResolution_zoe
 }
 NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "LoadImageFromUrl": "Load Image From URL",
@@ -1276,5 +1276,5 @@ NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "NumberScaler": "Number Scaler",
     "MergeModels": "Merge Models",
     "GetImagesFromBatchIndexed_zoe":"GetImagesFromBatchIndexed (zoe)",
-    "NearestZoe_FluxResolution": "NearestFluxResolution (zoe)",
+    "NearestFluxResolution_zoe": "NearestFluxResolution (zoe)",
 }
