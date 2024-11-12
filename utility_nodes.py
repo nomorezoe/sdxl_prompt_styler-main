@@ -19,6 +19,8 @@ from .utils import pil2tensor, tensor2pil, ensure_package, get_dict_attribute
 import hashlib
 import node_helpers
 
+import fitz  # PyMuPDF
+
 MAX_RESOLUTION = 8192
 
 FLUX_SUPPORTED_RESOLUTIONS = [
@@ -1207,6 +1209,50 @@ class NearestFluxResolution_zoe:
             height = 1024
         print(f"Selected SDXL resolution: {width}x{height}")
         return (width, height)
+    
+class PDFToImageNode_zoe:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "url": (
+                    "STRING",
+                    {
+                        "default": ""
+                    },
+                ),
+                "start_page": ("INT", {"default": 1, "min": 1, "max": 10000}),
+                "end_page": ("INT", {"default": 1, "min": 1, "max": 10000}),
+                "dpi": ("INT", {"default": 300, "min": 72, "max": 600}),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "pdf_to_images"
+    CATEGORY = "document_processing"
+    OUTPUT_IS_LIST = (True,)
+
+    def pdf_to_images(self, url, start_page, end_page, dpi):
+        print("pdf_to_images")
+       
+        response = requests.get(url)
+        doc = fitz.open(stream = response.content, filetype="pdf")
+        num_pages = len(doc)
+        
+        start_page = max(1, min(start_page, num_pages))
+        end_page = max(start_page, min(end_page, num_pages))
+        
+        images = []
+        for page_num in range(start_page - 1, end_page):
+            page = doc.load_page(page_num)
+            pix = page.get_pixmap(matrix=fitz.Matrix(dpi/72, dpi/72))
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            img_np = np.array(img).astype(np.float32) / 255.0
+            img_tensor = torch.from_numpy(img_np)[None,]
+            images.append(img_tensor)
+        
+        doc.close()
+        return (images,)
 
 NODE_CLASS_MAPPINGS_2 = {
     "LoadImageFromUrl": UtilLoadImageFromUrl,
@@ -1241,7 +1287,8 @@ NODE_CLASS_MAPPINGS_2 = {
     "NumberScaler": UtilNumberScaler,
     "MergeModels": UtilModelMerge,
     "GetImagesFromBatchIndexed_zoe":GetImagesFromBatchIndexed_zoe,
-    "NearestFluxResolution_zoe":NearestFluxResolution_zoe
+    "NearestFluxResolution_zoe":NearestFluxResolution_zoe,
+    "PDFToImageNode_zoe":PDFToImageNode_zoe
 }
 NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "LoadImageFromUrl": "Load Image From URL",
@@ -1277,4 +1324,5 @@ NODE_DISPLAY_NAME_MAPPINGS_2 = {
     "MergeModels": "Merge Models",
     "GetImagesFromBatchIndexed_zoe":"GetImagesFromBatchIndexed (zoe)",
     "NearestFluxResolution_zoe": "NearestFluxResolution (zoe)",
+    "PDFToImageNode_zoe":"PDFToImageNode (zoe)",
 }
