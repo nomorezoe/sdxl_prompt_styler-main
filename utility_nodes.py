@@ -69,11 +69,10 @@ def load_images_from_url(urls: List[str], keep_alpha_channel=False):
 
             i = Image.open(url)
         elif url.startswith("http://") or url.startswith("https://"):
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=5, stream=True)
             if response.status_code != 200:
                 raise Exception(response.text)
             
-            Image._initialized = 1
             i = Image.open(io.BytesIO(response.content))
         elif url.startswith("/view?"):
             from urllib.parse import parse_qs
