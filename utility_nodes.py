@@ -69,7 +69,7 @@ def load_images_from_url(urls: List[str], keep_alpha_channel=False):
 
             i = Image.open(url)
         elif url.startswith("http://") or url.startswith("https://"):
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=25)
             if response.status_code != 200:
                 raise Exception(response.text)
 
